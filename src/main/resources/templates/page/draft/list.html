@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head th:include="include/css-head :: css-head">
+</head>
+<body>
+<section class="content-header">
+  <h1>
+    	西游记告诉我们：凡是有后台的妖怪都被接走了，
+    <small>凡是没后台的都被一棒子打死了</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="#"><i class="fa fa-dashboard"></i> 系统管理</a></li>
+    <li class="active">用户管理</li>
+  </ol>
+</section>
+
+<!-- Main content -->
+<section class="content">
+	 <div class="box">
+            <div class="box-header">
+              <h3 class="box-title">用户投稿</h3>
+              <br><br>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+              <table id="roleList" class="table table-bordered table-striped">
+                <thead>
+	                <tr>
+	                  <th>序号</th>
+	                  <th>用户ID</th>
+	                  <th>用户昵称</th>
+	                  <th>稿子内容</th>
+	                  <th>稿子类型</th>
+	                  <th>稿子状态</th>
+	                  <th>提交时间</th>
+	                  <th>操作</th>
+	                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${QX.query == '1'}" th:each="draft,stat :${drafts}">
+                  <td th:text="${stat.count}">1</td>
+                  <td th:text="${draft.user_id}">用户ID</td>
+                  <td th:text="${draft.nick_name}">用户昵称</td>
+                  <td th:text="${draft.content}">个性签名</td>
+                  <td>
+                  	<span class="label label-info" th:if="${draft.type == 'episode'}">段子</span>
+		            <span class="label label-info" th:if="${draft.type == 'chickenSoup'}">鸡汤</span>
+		            <span class="label label-info" th:if="${draft.type == 'sayLove'}">情话</span>
+		            <span class="label label-info" th:if="${draft.type == 'coolRead'}">冷读</span>
+		            <span class="label label-info" th:if="${draft.type == 'tricks'}">套路</span>
+		            <span class="label label-info" th:if="${draft.type == 'accost'}">搭讪</span>
+		            <span class="label label-info" th:if="${draft.type == 'interact'}">互动</span>
+		            <span class="label label-info" th:if="${draft.type == 'game'}">游戏</span>
+                  </td>
+                  <td >
+                  	<span th:if="${draft.status == '0'}" class="label label-default">审核中</span>
+                  	<span th:if="${draft.status == '1'}" class="label label-success">审核通过</span>
+                  	<span th:if="${draft.status == '2'}" class="label label-danger">审核不通过</span>
+                  </td>
+                  <td th:text="${draft.create_time}">创建时间</td>
+                  <td>
+                  	<span data-toggle="tooltip" title="编辑稿子" th:if="${QX.edit == '1'}" class="btn btn-xs btn-info" th:onclick="'editDraft(\''+${draft.id}+'\',\''+${draft.user_id}+'\');'"><i class="fa fa-edit"></i> 编辑</span>
+                  	<span data-toggle="tooltip" title="删除稿子" th:if="${QX.del == '1'}" class="btn btn-xs btn-danger" th:onclick="'draftClose(\''+${draft.id}+'\',\''+${draft.user_id}+'\');'"><i class="fa fa-close"></i> 未通过</span>
+                  	<span data-toggle="tooltip" title="稿子通过" th:if="${QX.del == '1'}" class="btn btn-xs btn-success" th:onclick="'draftPass(\''+${draft.id}+'\',\''+${draft.user_id}+'\');'"><i class="fa fa-check"></i> 通过</span>
+                  	<span data-toggle="tooltip" title="权限不够" th:unless="${QX.edit == '1' || QX.add == '1' || QX.del == '1'}" ><i class="fa fa-lock"></i> 无权限</span>
+                  </td>
+                </tr>
+                <tr th:unless="${QX.query == '1'}" >
+                	<td colspan="7" align="center">
+						<h2>此用户无权限查看该页面</h2>
+                	</td>
+                </tr>
+                </tbody>
+               </table>
+               
+       </div>
+</section>
+
+<!-- 新增或修改的模态框 -->
+<div class="modal fade" id="draftModal" tabindex="-1" role="dialog"
+	aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-hidden="true">&times;</button>
+				<h4 class="modal-title text-center" id="usermodelHead">编辑稿子</h4>
+			</div>
+			<div class="modal-body">
+				<form class="form-horizontal"  role="form">
+				  <input type="hidden" name="id" id="draftId" value=""/>
+				  
+				  <div class="form-group">
+				    <label for="type" class="col-sm-2 control-label">稿子类型</label>
+				    <div class="col-sm-10">
+				      <select id="type" name="type" class="form-control">
+					      <option value="episode">段子</option>
+					      <option value="chickenSoup">鸡汤</option>
+					      <option value="sayLove">情话</option>
+					      <option value="coolRead">冷读</option>
+					      <option value="tricks">套路</option>
+					      <option value="accost">搭讪</option>
+					      <option value="interact">互动</option>
+					      <option value="game">游戏</option>
+					    </select>
+				    </div>
+				  </div>
+				  
+				  <div class="form-group">
+				    <label for="content" class="col-sm-2 control-label">稿子内容</label>
+				    <div class="col-sm-10">
+				    <textarea style="width: 100%;" rows="8" maxlength="50"  cols="50" name="content" placeholder="请输入角色描述" id="content"></textarea>
+				    </div>
+				  </div>
+				  
+				 </form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+				<button type="submit" class="btn btn-success"  id="draftSubmit" >确定</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- 未通过理由模态框 -->
+<div class="modal fade" id="closeDraftModal" tabindex="-1" role="dialog"
+	aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-hidden="true">&times;</button>
+				<h4 class="modal-title text-center" id="usermodelHead">未通过</h4>
+			</div>
+			<div class="modal-body">
+				<form class="form-horizontal"  role="form">
+				  <input type="hidden" name="id" id="closeDraftId" value=""/>
+				  <input type="hidden" name="user_id" id="userId" value=""/>
+				  
+				  <div class="form-group">
+				    <label for="msg_content" class="col-sm-2 control-label">填写未通过理由</label>
+				    <div class="col-sm-10">
+				    <textarea style="width: 100%;" rows="8" maxlength="50"  cols="50" name="msg_content" placeholder="请输入稿子未通过的理由" id="msg_content"></textarea>
+				    </div>
+				  </div>
+				  
+				 </form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+				<button type="submit" class="btn btn-success"  id="closeDraftSubmit" >确定</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+<script th:src="@{/bower_components/jquery/dist/jquery.min.js}"></script>	
+<script th:src="@{/bower_components/bootstrap/dist/js/bootstrap.min.js}"></script>
+<script th:src="@{/bower_components/datatables.net/js/jquery.dataTables.min.js}"></script>
+<script th:src="@{/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js}"></script>
+<!-- AdminLTE App -->
+<script th:src="@{/dist/js/adminlte.min.js}"></script>
+<script th:src="@{/js/path.js}"></script>
+<script>
+
+$(function(){
+	 //提示框
+    $("[data-toggle='tooltip']").tooltip();
+	//表格分页
+    $('#roleList').DataTable({
+    	"scrollX"	  : true,
+  		'paging'      : true,
+  	    'lengthChange': true,
+  	    'searching'   : true,
+  	    'ordering'    : true,
+  	    'info'        : true,
+  	    'autoWidth'   : false,
+  	  	"pagingType"  : "full_numbers",
+  	  	"pageLength"  : 10
+    });
+	
+	//修改稿子
+	$("#draftSubmit").click(function(){
+		var content = $("#content").val();
+		var type = $("#type").val();
+		var id = $("#draftId").val();
+		$.ajax({
+			type:"post",
+			url:_ctx+"/draft/update",
+			dataType:"json",
+			data:{id:id,type:type,content:content},
+			cache:false,
+			success:function(data){
+				if(data.status == "success"){
+					window.location.href= window.location.href;
+					$("#draftModal").modal("hide");
+					
+				}else{
+					alert(data.msg);
+				}
+				console.log("data",data);
+			}
+			
+		});
+	});
+	
+	//未通过
+	$("#closeDraftSubmit").click(function(){
+		var content = $("#msg_content").val();
+		var id = $("#closeDraftId").val();
+		var userId = $("#userId").val();
+		request(id,userId,content,2,"closeDraftModal");
+	});
+
+})
+
+/**
+ * 编辑用户
+ */
+function editDraft(id,userId){
+	$.ajax({
+		type:"get",
+		url:_ctx+"/draft/detail",
+		dataType:"json",
+		data:{id:id,user_id:userId},
+		cache:false,
+		success:function(data){
+			if(data.status == "success"){
+				$("#draftId").val(data.data.id);
+				$("#userId").val(data.data.user_id);
+				$("#type option[value='"+data.data.type+"']").attr("selected",true);
+				$("#content").val(data.data.content);
+				$("#draftModal").modal("show");
+				
+			}else{
+				alert(data.msg);
+			}
+			console.log("data",data);
+		}
+		
+	});
+}
+
+/**
+ * 稿子未通过
+ */
+function draftClose(id,userId){
+	$("#closeDraftId").val(id);
+	$("#userId").val(userId);
+	$("#closeDraftModal").modal("show");
+}
+
+//通过
+function draftPass(id,userId){
+	if(confirm("你确定认真审核了吗？")){
+		request(id,userId,"",1,"");
+	}
+}
+
+function request(id,userId,msg_content,status,modalId){
+	$.ajax({
+		type:"post",
+		url:_ctx+"/draft/update",
+		dataType:"json",
+		data:{id:id,user_id:userId,msg_content:msg_content,status:status},
+		cache:false,
+		success:function(data){
+			if(data.status == "success"){
+				window.location.href= window.location.href;
+				if(modalId != ""){					
+					$("#"+modalId).modal("hide");
+				}
+			}else{
+				alert(data.msg);
+			}
+			console.log("data",data);
+		}
+		
+	});
+}
+
+</script>
+</body>
+</html>

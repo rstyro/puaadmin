@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html>
+<style>
+	.searchBox{
+		margin: 20px 0px 0px 0px;
+	}
+	.searchTitle{
+		display: inline-block;
+		font-size: 20px;
+		float: left;
+	}
+	#searchType{
+		display: inline-block;
+		max-width: 200px;
+		vertical-align:top;
+		float: left;
+	}
+	.searchInput{
+		vertical-align:top;
+		max-width: 300px;
+		float: left;
+		cursor: pointer;
+	}
+</style>
+<head th:include="include/css-head :: css-head">
+</head>
+<body>
+	<!-- Content Header (Page header) -->
+	<section class="content-header">
+		<h1>
+			西游记告诉我们：凡是有后台的妖怪都被接走了， <small>凡是没后台的都被一棒子打死了</small>
+		</h1>
+		<ol class="breadcrumb">
+			<li><a href="#"><i class="fa fa-dashboard"></i> 系统管理</a></li>
+			<li class="active">秘籍管理</li>
+		</ol>
+	</section>
+
+	<!-- Main content -->
+	<section class="content">
+		<div class="box">
+			<div class="box-header">
+				<h3 class="box-title">秘籍列表</h3>
+				<br> <br>
+				<button th:if="${QX.add == '1' && QX.query == '1'}"
+					class="btn btn-success btn-sm" id="addEsoterica">
+					<i class="fa fa-plus"></i> &nbsp;&nbsp;添加秘籍
+				</button>
+				<br>
+					<div class="searchBox">
+						<div class="row">
+							<span class="searchTitle">搜索类型:</span>
+							<select id="searchType"  name="searchType" class="form-control">
+								<option th:selected="(${type} == '')" value="">请选择</option>
+								<option th:selected="(${type} == 'episode')" value="episode">段子</option>
+								<option th:selected="(${type} == 'chickenSoup')" value="chickenSoup">鸡汤</option>
+								<option th:selected="(${type} == 'sayLove')" value="sayLove">情话</option>
+								<option th:selected="(${type} == 'coolRead')" value="coolRead">冷读</option>
+								<option th:selected="(${type} == 'tricks')" value="tricks">套路</option>
+								<option th:selected="(${type} == 'accost')" value="accost">搭讪</option>
+								<option th:selected="(${type} == 'interact')" value="interact">互动</option>
+								<option th:selected="(${type} == 'game')" value="game">游戏</option>
+							</select> 
+							<div class="input-group searchInput">
+					            <input type="text" id="kw" th:value="${kw}" class="form-control">
+					            <span class="input-group-addon" id="searchSubmit"><i class="fa fa-search"></i></span>
+					        </div>
+						</div>
+				</div>
+			</div>
+			<div class="table-responsive">
+				<table class="table  table-hover table-condensed">
+					<thead>
+						<tr>
+							<th>序号</th>
+							<th>_ID</th>
+							<th>speechcraft_id</th>
+							<th>用户昵称</th>
+							<th>内容</th>
+							<th>类型</th>
+							<th>点赞数</th>
+							<th>创建时间</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:if="${QX.query == '1'}" th:each="esoterica,stat :${lists}">
+							<td th:text="${stat.count}">1</td>
+							<td th:text="${esoterica._id}">用户ID</td>
+							<td style="min-width: 80px;"
+								th:text="${esoterica.speechcraft_id}">SpeechcraftID</td>
+							<td style="min-width: 80px;" th:text="${esoterica.auther}">用户昵称</td>
+							<td th:text="${esoterica.content}"
+								th:class="'content-'+${stat.count}">内容</td>
+							<td><span class="label label-info"
+								th:if="${esoterica.type == 'episode'}">段子</span> <span
+								class="label label-info"
+								th:if="${esoterica.type == 'chickenSoup'}">鸡汤</span> <span
+								class="label label-info" th:if="${esoterica.type == 'sayLove'}">情话</span>
+								<span class="label label-info"
+								th:if="${esoterica.type == 'coolRead'}">冷读</span> <span
+								class="label label-info" th:if="${esoterica.type == 'tricks'}">套路</span>
+								<span class="label label-info"
+								th:if="${esoterica.type == 'accost'}">搭讪</span> <span
+								class="label label-info" th:if="${esoterica.type == 'interact'}">互动</span>
+								<span class="label label-info"
+								th:if="${esoterica.type == 'game'}">游戏</span></td>
+							<td style="min-width: 80px;" th:text="${esoterica.praise_num}">用户ID</td>
+							<td style="min-width: 150px;" th:text="${esoterica.create_time}">创建时间</td>
+							<td style="min-width: 150px;"><span data-toggle="tooltip"
+								title="编辑用户信息" th:if="${QX.edit == '1'}"
+								class="btn btn-xs btn-info"
+								th:onclick="'editEsoterica(\''+${stat.count}+'\',\''+${esoterica._id}+'\',\''+${esoterica.speechcraft_id}+'\',\''+${esoterica.user_id}+'\',\''+${esoterica.type}+'\',\''+${esoterica.praise_num}+'\',\''+${esoterica.create_time}+'\');'"><i
+									class="fa fa-edit"></i> 编辑</span> <span data-toggle="tooltip"
+								title="删除用户" th:if="${QX.del == '1'}"
+								class="btn btn-xs btn-danger"
+								th:onclick="'delEsoterica(\''+${esoterica._id}+'\');'"><i
+									class="fa fa-trash-o"></i> 删除</span> <span data-toggle="tooltip"
+								title="权限不够"
+								th:unless="${QX.edit == '1' || QX.add == '1' || QX.del == '1'}"><i
+									class="fa fa-lock"></i> 无权限</span></td>
+						</tr>
+						<tr th:unless="${QX.query == '1'}">
+							<td colspan="7" align="center">
+								<h2>此用户无权限查看该页面</h2>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<div class="text-center">
+					<input type="hidden" th:value="${page.currentPage == 0?1:page.currentPage}" id="currentPage" /> 
+					<input type="hidden" th:value="${page.showCount  == 0?1:page.showCount}" id="showCount" />
+					 <input type="hidden" th:value="${page.totalPage  == 0?1:page.totalPage}" id="totalPage" />
+					<ul id='mypage' class="pagination"></ul>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- 模态框 -->
+	<div class="modal fade" id="esotericaModal" tabindex="-1" role="dialog"
+		aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-hidden="true">&times;</button>
+					<h4 class="modal-title text-center" id="modalTitle">新增</h4>
+				</div>
+				<div class="modal-body">
+					<form class="form-horizontal" role="form">
+						<input type="hidden" name="_id" id="_id" value="" /> <input
+							type="hidden" name="speechcraft_id" id="speechcraft_id" value="" />
+						<input type="hidden" name="url" id="url" value="" />
+
+						<div class="form-group">
+							<label for="push_id" class="col-sm-2 control-label">用户ID</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" title="发布这个段子的用户id"
+									name="user_id" value="" id="user_id"
+									placeholder="请输入发布这个段子的用户id,不填则是 1">
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="push_id" class="col-sm-2 control-label">点赞数</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" title="默认为0"
+									name="user_id" value="0" id="praise_num" placeholder="点赞数默认为 0">
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="type" class="col-sm-2 control-label">秘籍类型</label>
+							<div class="col-sm-10">
+								<select id="type" name="type" class="form-control">
+									<option value="">请选择</option>
+									<option value="episode">段子</option>
+									<option value="chickenSoup">鸡汤</option>
+									<option value="sayLove">情话</option>
+									<option value="coolRead">冷读</option>
+									<option value="tricks">套路</option>
+									<option value="accost">搭讪</option>
+									<option value="interact">互动</option>
+									<option value="game">游戏</option>
+								</select>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="msg_content" class="col-sm-2 control-label">内容</label>
+							<div class="col-sm-10">
+								<textarea style="width: 100%;" rows="8" cols="50" name="content"
+									placeholder="秘籍内容" id="content"></textarea>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="push_id" class="col-sm-2 control-label">发布时间</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" title="默认为当前时间"
+									name="create_time" value="" id="create_time"
+									placeholder="默认为当前时间">
+							</div>
+						</div>
+
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+					<button type="submit" class="btn btn-success" id="modalSubmit">确定</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script th:src="@{/bower_components/jquery/dist/jquery.min.js}"></script>
+	<script
+		th:src="@{/bower_components/bootstrap/dist/js/bootstrap.min.js}"></script>
+	<script
+		th:src="@{/bower_components/datatables.net/js/jquery.dataTables.min.js}"></script>
+	<script th:src="@{/js/bootstrap-paginator.js}"></script>
+	<!-- AdminLTE App -->
+	<script th:src="@{/dist/js/adminlte.min.js}"></script>
+	<script th:src="@{/js/path.js}"></script>
+	<script>
+		$(function() {
+			var element = $('#mypage');
+			options = {
+				bootstrapMajorVersion : 3, //对应的bootstrap版本
+				currentPage : $("#currentPage").val(), //当前页数，这里是用的EL表达式，获取从后台传过来的值
+				numberOfPages : $("#showCount").val(), //每页页数
+				totalPages : $("#totalPage").val(), //总页数，这里是用的EL表达式，获取从后台传过来的值
+				itemTexts : function(type, page, current) {//设置显示的样式，默认是箭头
+					switch (type) {
+					case "first":
+						return "首页";
+					case "prev":
+						return "上一页";
+					case "next":
+						return "下一页";
+					case "last":
+						return "末页";
+					case "page":
+						return page;
+					}
+				},
+				//点击事件
+				onPageClicked : function(event, originalEvent, type, page) {
+					var type = $("#searchType").val();
+					var kw = $("#kw").val();
+					window.location.href = _ctx + "/esoterica/list/" + page+"?type="+type+"&kw="+kw;
+				}
+			};
+			element.bootstrapPaginator(options);
+
+			//提示框
+			$("[data-toggle='tooltip']").tooltip();
+
+			//新增
+			$("#addEsoterica").click(
+					function() {
+						reloadModal("新增", _ctx + "/esoterica/save", "", "", "",
+								"", "", 0, "");
+						$("#esotericaModal").modal("show");
+					});
+
+			//提交
+			$("#modalSubmit").click(
+					function() {
+						var url = $("#url").val();
+						var _id = $("#_id").val();
+						var speechcraftId = $("#speechcraft_id").val();
+						var userId = $("#user_id").val();
+						var content = $("#content").val();
+						var type = $("#type").val();
+						var praiseNum = $("#praise_num").val();
+						var create_time = $("#create_time").val();
+						request(url, _id, speechcraftId, userId, content, type,
+								praiseNum, create_time);
+
+					});
+
+			//搜索
+			$("#searchSubmit").click(function(){
+				var type = $("#searchType").val();
+				var kw = $("#kw").val();
+				window.location.href = _ctx + "/esoterica/list/1?type="+type+"&kw="+kw;
+			});
+		})
+
+		//编辑
+		function editEsoterica(count, _id, speechcraftId, userId, type,
+				praiseNum, create_time) {
+			var content = $(".content-" + count).text();
+			reloadModal("更改", _ctx + "/esoterica/update", _id, speechcraftId,
+					userId, content, type, praiseNum, create_time)
+			$("#esotericaModal").modal("show");
+		}
+
+		//删除
+		function delEsoterica(_id) {
+			if (confirm("你确定要删除这条数据吗？")) {
+				$.ajax({
+					type : "post",
+					url : _ctx + "/esoterica/del",
+					dataType : "json",
+					data : {
+						_id : _id,
+						t_ : new Date().getTime()
+					},
+					cache : false,
+					success : function(data) {
+						if (data.status == "success") {
+							window.location.href = window.location.href;
+						} else {
+							alert(data.msg);
+						}
+					}
+
+				});
+			}
+
+		}
+
+		function reloadModal(title, url, _id, speechcraftId, userId, content,
+				type, praiseNum, create_time) {
+			$("#modalTitle").text(title);
+			$("#url").val(url);
+			$("#_id").val(_id);
+			$("#speechcraft_id").val(speechcraftId);
+			$("#user_id").val(userId);
+			$("#content").val(content);
+			$("#type").val(type);
+			$("#praise_num").val(praiseNum);
+			$("#create_time").val(create_time);
+		}
+
+		function request(url, _id, speechcraftId, userId, content, type,
+				praiseNum, create_time) {
+			console.log("type=", type);
+			if (type == "") {
+				alert("未选择类型!");
+				return false;
+			}
+			$.ajax({
+				type : "post",
+				url : url,
+				dataType : "json",
+				data : {
+					_id : _id,
+					speechcraft_id : speechcraftId,
+					user_id : userId,
+					content : content,
+					type : type,
+					praise_num : praiseNum,
+					create_time : create_time,
+					t_ : new Date().getTime()
+				},
+				cache : false,
+				success : function(data) {
+					if (data.status == "success") {
+						window.location.href = window.location.href;
+					} else {
+						alert(data.msg);
+					}
+				}
+
+			});
+			$("#esotericaModal").modal("hide");
+		}
+	</script>
+</body>
+</html>

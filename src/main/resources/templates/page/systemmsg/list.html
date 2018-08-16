@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head th:include="include/css-head :: css-head">
+</head>
+<body>
+<section class="content-header">
+  <h1>
+    	西游记告诉我们：凡是有后台的妖怪都被接走了，
+    <small>凡是没后台的都被一棒子打死了</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="#"><i class="fa fa-dashboard"></i> 系统管理</a></li>
+    <li class="active">消息管理</li>
+  </ol>
+</section>
+
+<!-- Main content -->
+<section class="content">
+	 <div class="box">
+            <div class="box-header">
+              <h3 class="box-title">系统消息</h3>
+              <br><br>
+              <button th:if="${QX.add == '1' && QX.query == '1'}" class="btn btn-success btn-sm" id="addSysMsg"><i class="fa fa-plus"></i> &nbsp;&nbsp;添加系统消息</button>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+              <table id="roleList" class="table table-bordered table-striped">
+                <thead>
+	                <tr>
+	                  <th>序号</th>
+	                  <th>消息ID</th>
+	                  <th>推送人ID</th>
+	                  <th>消息标题</th>
+	                  <th>消息内容</th>
+	                  <th>生效时间</th>
+	                  <th>操作</th>
+	                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${QX.query == '1'}" th:each="system,stat :${systemMsgs}">
+                  <td th:text="${stat.count}">1</td>
+                  <td th:text="${system.msg_id}">用户ID</td>
+                  <td th:text="${system.push_id}">用户昵称</td>
+                  <td th:text="${system.title}">个性签名</td>
+                  <td th:text="${system.msg_content}">个性签名</td>
+                  <td th:text="${system.create_time}">创建时间</td>
+                  <td>
+                  	<span data-toggle="tooltip" title="编辑稿子" th:if="${QX.edit == '1'}" class="btn btn-xs btn-info" th:onclick="'editSysMsg(\''+${system.msg_id}+'\',\''+${system.push_id}+'\',\''+${system.title}+'\',\''+${system.msg_content}+'\',\''+${system.create_time}+'\');'"><i class="fa fa-edit"></i> 编辑</span>
+                  	<span data-toggle="tooltip" title="删除稿子" th:if="${QX.del == '1'}" class="btn btn-xs btn-danger" th:onclick="'delSysMsg(\''+${system.msg_id}+'\');'"><i class="fa fa-close"></i> 删除</span>
+                  	<span data-toggle="tooltip" title="权限不够" th:unless="${QX.edit == '1' || QX.add == '1' || QX.del == '1'}" ><i class="fa fa-lock"></i> 无权限</span>
+                  </td>
+                </tr>
+                <tr th:unless="${QX.query == '1'}" >
+                	<td colspan="7" align="center">
+						<h2>此用户无权限查看该页面</h2>
+                	</td>
+                </tr>
+                </tbody>
+               </table>
+               
+       </div>
+</section>
+
+<!-- 新增或修改的模态框 -->
+<div class="modal fade" id="sysMsgModal" tabindex="-1" role="dialog"
+	aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-hidden="true">&times;</button>
+				<h4 class="modal-title text-center" id="usermodelHead">系统消息</h4>
+			</div>
+			<div class="modal-body">
+				<form class="form-horizontal"  role="form">
+				  <input type="hidden" name="msg_id" id="msgId" value=""/>
+				  
+				   <div class="form-group">
+				    <label for="push_id" class="col-sm-2 control-label">推送人ID</label>
+				    <div class="col-sm-10">
+				      <input type="text" class="form-control" title="不调，则推送所有人" name="push_id" value="" id="push_id" placeholder="请输入推送人ID">
+				    </div>
+				  </div>
+				   <div class="form-group">
+				    <label for="title" class="col-sm-2 control-label">标题</label>
+				    <div class="col-sm-10">
+				      <input type="text" class="form-control" name="title" value="" id="title" placeholder="请输入标题">
+				    </div>
+				  </div>
+				  
+				  <div class="form-group">
+				    <label for="msgContent" class="col-sm-2 control-label">消息内容</label>
+				    <div class="col-sm-10">
+				    <textarea style="width: 100%;" rows="8" maxlength="50"  cols="50" name="msg_content" placeholder="请输入消息内容" id="msgContent"></textarea>
+				    </div>
+				  </div>
+				  
+				   <div class="form-group">
+				    <label for="create_time" class="col-sm-2 control-label">生效时间</label>
+				    <div class="col-sm-10">
+				      <input type="text" class="form-control" title="不填则当日生效" name="create_time" value="" id="create_time" placeholder="请输入生效时间，格式:yyyy-mm-dd HH:mm:ss">
+				    </div>
+				  </div>
+				  
+				 </form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+				<button type="submit" class="btn btn-success"  id="sysMsgSubmit" >确定</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<script th:src="@{/bower_components/jquery/dist/jquery.min.js}"></script>	
+<script th:src="@{/bower_components/bootstrap/dist/js/bootstrap.min.js}"></script>
+<script th:src="@{/bower_components/datatables.net/js/jquery.dataTables.min.js}"></script>
+<script th:src="@{/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js}"></script>
+<!-- AdminLTE App -->
+<script th:src="@{/dist/js/adminlte.min.js}"></script>
+<script th:src="@{/js/path.js}"></script>
+<script>
+
+$(function(){
+	 //提示框
+    $("[data-toggle='tooltip']").tooltip();
+	//表格分页
+    $('#roleList').DataTable({
+    	"scrollX"	  : true,
+  		'paging'      : true,
+  	    'lengthChange': true,
+  	    'searching'   : true,
+  	    'ordering'    : true,
+  	    'info'        : true,
+  	    'autoWidth'   : false,
+  	  	"pagingType"  : "full_numbers",
+  	  	"pageLength"  : 10
+    });
+	
+	//添加系统消息
+	$("#addSysMsg").click(function(){
+		$("#msgId").val("");
+		$("#push_id").val("");
+		$("#title").val("");
+		$("#msgContent").val("");
+		$("#create_time").val("");
+		$("#sysMsgSubmit").val("添加");
+		$("#sysMsgModal").modal("show");
+	});
+	
+	//修改系统消息
+	$("#sysMsgSubmit").click(function(){
+		var btnName = $(this).val();
+		console.log("btnName",btnName);
+		var url="";
+		var msgId=$("#msgId").val();
+		var pushId=$("#push_id").val();
+		var title=$("#title").val();
+		var msgContent = $("#msgContent").val();
+		var create_time = $("#create_time").val();
+		if(btnName == "更改"){
+			url="/systemmsg/update";
+		}else if(btnName == "添加"){
+			url="/systemmsg/add";
+		}
+		request(url,msgId,pushId,title,msgContent,create_time);
+	});
+	
+	
+	
+
+})
+
+/**
+ * 编辑用户
+ */
+function editSysMsg(msgId,pushId,title,msgContent,create_time){
+	$("#msgId").val(msgId);
+	$("#push_id").val(pushId);
+	$("#title").val(title);
+	$("#msgContent").val(msgContent);
+	$("#create_time").val(create_time);
+	$("#sysMsgSubmit").val("更改");
+	$("#sysMsgModal").modal("show");
+}
+
+/**
+ * 稿子未通过
+ */
+function delSysMsg(id){
+	if(confirm("你确定要删除该系统消息吗？")){
+		request("/systemmsg/del",id,"","","","");
+	}
+}
+
+function request(url,msgId,pushId,title,msgContent,create_time){
+	$.ajax({
+		type:"post",
+		url:_ctx+url,
+		dataType:"json",
+		data:{msg_id:msgId,push_id:pushId,title:title,msg_content:msgContent,create_time:create_time,t_:new Date().getTime()},
+		cache:false,
+		success:function(data){
+			if(data.status == "success"){
+				window.location.href= window.location.href;
+				$("#sysMsgModal").modal("hide");
+			}else{
+				alert(data.msg);
+			}
+			console.log("data",data);
+		}
+		
+	});
+}
+
+
+</script>
+</body>
+</html>

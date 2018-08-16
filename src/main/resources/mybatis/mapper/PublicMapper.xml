@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lrs.admin.dao.PublicDao" >
+	
+	<select id="getDraftList" parameterType="pm" resultType="pm">
+		SELECT
+			a.id,
+			a.user_id,
+			a.content,
+			a.type,
+			a.`status`,
+			a.create_time,
+			b.nick_name
+		from 
+			pua_contribute a
+		LEFT JOIN
+			pua_users b
+		ON
+			a.user_id=b.user_id
+		where
+			1=1
+		order by
+			a.create_time asc
+		
+	</select>
+	
+	<select id="getDraftDetail" parameterType="pm" resultType="pm">
+		SELECT
+			a.id,
+			a.user_id,
+			a.content,
+			a.type,
+			a.`status`,
+			a.create_time
+		from 
+			pua_contribute a
+		where
+			a.id=#{id}
+		
+	</select>
+	
+	<update id="editDraft" parameterType="pm">
+		update pua_contribute a
+			set 
+			<if test="status != null and status != ''">
+				a.status = #{status},
+			</if>
+			<if test="content != null and content != ''">
+				a.content = #{content},
+			</if>
+			<if test="type != null and type != ''">
+				a.type = #{type},
+			</if>
+			id=#{id}
+		where
+			id=#{id}
+			
+	</update>
+	
+	<!-- 保存系统消息 -->
+	<insert id="saveSystemMsg" parameterType="pm">
+		insert into pua_sys_msg(
+			title,
+			<if test="push_id != null and push_id != ''">
+			push_id,
+			</if>
+			msg_content,
+			create_time
+		) values(
+			#{title},
+			<if test="push_id != null and push_id != ''">
+			#{push_id},
+			</if>
+			#{msg_content},
+			#{create_time}
+		)
+	</insert>
+	<update id="editSystemMsg" parameterType="pm">
+		update pua_sys_msg
+			set 
+			<if test="title != null and title != ''">
+				title = #{title},
+			</if>
+			<if test="push_id != null and push_id != ''">
+				push_id = #{push_id},
+			</if>
+			<if test="msg_content != null and msg_content != ''">
+				msg_content = #{msg_content},
+			</if>
+			msg_id=#{msg_id}
+		where
+			msg_id=#{msg_id}
+			
+	</update>
+	<delete id="delSystemMsg" parameterType="String">
+		delete from pua_sys_msg where msg_id in
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+		    #{item}
+		</foreach>
+	</delete>
+	
+	<select id="getSystemMsglist" parameterType="pm" resultType="pm">
+		SELECT
+			msg_id,
+			push_id,
+			title,
+			msg_content,
+			create_time
+		from 
+			pua_sys_msg
+	</select>
+	
+	<select id="getfeedBacklist" parameterType="pm" resultType="pm">
+		SELECT 
+			a.id,
+			a.user_id,
+			a.content,
+			a.status,
+			a.create_time,
+			b.nick_name
+		from 
+			pua_feedback a
+		LEFT JOIN
+			pua_users b
+		ON
+			a.user_id=b.user_id
+	</select>
+	
+	<update id="editFeedBack" parameterType="pm">
+		update pua_feedback
+			set 
+			status=#{status}
+		where
+			id=#{id}
+	</update>
+
+</mapper>
